@@ -6,4 +6,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', JobSeekerView.as_view(), name='profile'),
+    path('profile/<int:pk>/', JobSeekerView.as_view(), name='profile'),
 ]
