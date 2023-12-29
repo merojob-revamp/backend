@@ -1,7 +1,9 @@
 # accounts/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import JobSeeker, BasicUser, User
+from .models import JobSeeker
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,18 +17,11 @@ class JobSeekerSerializer(serializers.ModelSerializer):
         model = JobSeeker
         fields = '__all__'
 
-# class CompanySerializer(serializers.ModelSerializer):
-#     user = UserSerializer()
-
-#     class Meta:
-#         model = Company
-#         fields = '__all__'
-
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = BasicUser
+        model = User
         fields = ['id', 'username', 'email', 'password']
 
     def create(self, validated_data):
@@ -35,6 +30,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password']
         )
+        JobSeeker.objects.create(user=user)
         return user
 
 class LoginSerializer(serializers.Serializer):
@@ -60,3 +56,13 @@ class LoginSerializer(serializers.Serializer):
 
 class TokenRefreshSerializer(serializers.Serializer):
     refresh = serializers.CharField()
+    
+    def validate(self, data):
+        refresh = data.get('refresh')
+        try:
+            RefreshToken(refresh)
+        except TokenError:
+            msg = "Invalid token."
+            raise serializers.ValidationError(msg, code="authorization")
+        
+        return data

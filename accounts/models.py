@@ -2,78 +2,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission
 
-# Create your models here.
-
-'''
-There will be two types of account. One for the normal jobseeking user and another for the companies.
-
-The jobseeking user will have the following fields:
-Personal Information:
-- username
-- password
-- email
-- first name
-- middle name
-- last name
-- phone number
-- address
-- Permanent Address
-- Current Address
-
-Educational Information:
-- Level of Education
-- Faculty
-- Graduation Year
-- Another Level of Education
-- Another Faculty
-- Another Graduation Year
-- GPA/Percentage
-
-Work Experience:
-- Previous Company
-- Previous Role
-- Interested Category
-- Interested Role
-- Interested Employment Type
-- Expected Position Level
-- Upload Resume
-
-The company user will have the following fields:
-Company Information:
-- username
-- password
-- email
-- company name
-- company website
-- company phone number
-- company address
-- company description
-- company logo
-- company size
-- company type
-- company industry
-
-'''
-
-class BasicUser(User):
-    has_filled_profile = models.BooleanField(default=False)
 
 class JobSeeker(models.Model):
-    user = models.OneToOneField(BasicUser, on_delete=models.CASCADE, primary_key=True)
-    first_name = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    first_name = models.CharField(max_length=100,null=True, blank=True)
     middle_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=20)
-    address = models.CharField(max_length=100)
-    permanent_address = models.CharField(max_length=100)
-    current_address = models.CharField(max_length=100)
-    level_of_education = models.CharField(max_length=100)
-    faculty = models.CharField(max_length=100)
-    graduation_year = models.IntegerField()
-    another_level_of_education = models.CharField(max_length=100, null=True, blank=True)
-    another_faculty = models.CharField(max_length=100, null=True, blank=True)
-    another_graduation_year = models.IntegerField(null=True, blank=True)
-    gpa = models.FloatField()
+    last_name = models.CharField(max_length=100,null=True , blank=True)
+    phone_number = models.CharField(max_length=20,null=True, blank=True)
+    address = models.CharField(max_length=100,null=True, blank=True)
+    permanent_address = models.CharField(max_length=100,null=True , blank=True)
+    current_address = models.CharField(max_length=100,null=True, blank=True)
+    level_of_education = models.CharField(max_length=100,null=True, blank=True)
+    faculty = models.CharField(max_length=100,null=True, blank=True)
+    graduation_year = models.IntegerField(null=True, blank=True)
+    gpa = models.FloatField(null=True, blank=True)
     previous_company = models.CharField(max_length=100, null=True, blank=True)
     previous_role = models.CharField(max_length=100, null=True, blank=True)
     interested_category = models.CharField(max_length=100, null=True, blank=True)
@@ -84,19 +26,15 @@ class JobSeeker(models.Model):
 
     def __str__(self):
         return self.user.username
-
-
-# class Company(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-#     company_name = models.CharField(max_length=100)
-#     company_website = models.CharField(max_length=100)
-#     company_phone_number = models.CharField(max_length=20)
-#     company_address = models.CharField(max_length=100)
-#     company_description = models.CharField(max_length=100)
-#     company_logo = models.ImageField(upload_to='logos/')
-#     company_size = models.CharField(max_length=100)
-#     company_type = models.CharField(max_length=100)
-#     company_industry = models.CharField(max_length=100)
-
-#     def __str__(self):
-#         return self.user.username
+    
+    def is_filled(self):
+        fields = [
+            'first_name', 'middle_name', 'last_name', 'phone_number', 'address', 'permanent_address', 'current_address',
+            'level_of_education', 'faculty', 'graduation_year', 'gpa', 'previous_company', 'previous_role',
+            'interested_category', 'interested_role', 'interested_employment_type', 'expected_position_level',
+            'upload_resume'
+        ]
+        for field in fields:
+            if not getattr(self, field):
+                return False
+        return True
