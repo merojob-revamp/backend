@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from .serializers import RegistrationSerializer, LoginSerializer, TokenRefreshSerializer, UserSerializer, JobSeekerSerializer
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from .models import JobSeeker
 
 
 class JobSeekerView(generics.RetrieveUpdateAPIView):
@@ -22,11 +24,14 @@ class JobSeekerView(generics.RetrieveUpdateAPIView):
         serializer.save()
         return Response(serializer.data)
 
-    def get(self, request, *args, **kwargs):
-        jobseeker = self.get_object()
-        serializer = self.get_serializer(jobseeker)
+    def get(self, request, pk=None):
+        if pk:
+            jobseeker = get_object_or_404(JobSeeker, pk=pk)
+            serializer = JobSeekerSerializer(jobseeker)
+        else:
+            jobseeker = self.get_object()
+            serializer = self.get_serializer(jobseeker)
         return Response(serializer.data)
-
 
 class RegistrationView(generics.CreateAPIView):
     permission_classes = [AllowAny]
